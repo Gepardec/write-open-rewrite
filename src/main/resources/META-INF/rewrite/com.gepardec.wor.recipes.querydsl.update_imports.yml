@@ -1,0 +1,30 @@
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: com.gepardec.wor.recipes.querydsl.UpdateImports
+displayName: Update imports of QueryDSL
+description: "This recipe changes the imports of old QueryDSL classes (3.6.1) to new ones (5.0.0)"
+tags:
+  - java
+recipeList:
+  - org.openrewrite.java.ChangePackage:
+      oldPackageName: com.mysema.query
+      newPackageName: com.querydsl.core
+  - org.openrewrite.java.ChangePackage:
+      oldPackageName: com.mysema.query.types
+      newPackageName: com.querydsl.core.types.dsl
+  - org.openrewrite.java.ChangePackage:
+      oldPackageName: com.mysema.query.types.path
+      newPackageName: com.querydsl.core.types.dsl
+  - org.openrewrite.java.ChangePackage:
+      oldPackageName: com.mysema.query.types.expr
+      newPackageName: com.querydsl.core.types.dsl
+
+
+
+
+
+
+
+
+
+
