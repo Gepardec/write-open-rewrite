@@ -13,7 +13,7 @@ class SimpleMigrationTest implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
         spec.recipeFromResources("com.gepardec.wor.recipes.querydsl.UpdateImports")
-          .parser(JavaParser.fromJavaVersion().classpath("querydsl-jpa", "querydsl-sql", "javaee-api")).typeValidationOptions(TypeValidation.none());
+          .parser(JavaParser.fromJavaVersion().classpath(JavaParser.runtimeClasspath()));
     }
 
     @DocumentExample
