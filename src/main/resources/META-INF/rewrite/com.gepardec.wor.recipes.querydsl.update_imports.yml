@@ -6,6 +6,9 @@ description: "This recipe changes the imports of old QueryDSL classes (3.6.1) to
 tags:
   - java
 recipeList:
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: com.mysema.query.jpa.impl.JPAQuery
+      newFullyQualifiedTypeName: com.querydsl.jpa.impl.JPAQueryFactory
   - org.openrewrite.java.ChangePackage:
       oldPackageName: com.mysema.query
       newPackageName: com.querydsl.core
