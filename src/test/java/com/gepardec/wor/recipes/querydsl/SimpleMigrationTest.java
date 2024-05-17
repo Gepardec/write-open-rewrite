@@ -5,7 +5,6 @@ import org.openrewrite.DocumentExample;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
-import org.openrewrite.test.TypeValidation;
 
 import static org.openrewrite.java.Assertions.java;
 
@@ -19,6 +18,62 @@ class SimpleMigrationTest implements RewriteTest {
     @DocumentExample
     @Test
     void replacesPackages() {
+        rewriteRun(
+          //language=java
+          java(
+            """
+              package at.gepardec.wor.recipes.querydsl.testapp;
+                                                     
+              import at.gepardec.wor.recipes.querydsl.testapp.entities.QTestEntity;
+              import com.mysema.query.jpa.impl.JPAQuery;
+                                                     
+              import javax.enterprise.context.RequestScoped;
+              import javax.inject.Inject;
+              import javax.persistence.EntityManager;
+                            
+              @RequestScoped
+              public class TestDAO {
+                  @Inject
+                  private EntityManager em;
+                            
+                  public String getName() {
+                      return new JPAQuery(em)
+                                  .from(QTestEntity.testEntity)
+                                  .where(QTestEntity.testEntity.id.eq(1L))
+                                  .uniqueResult(QTestEntity.testEntity.name);
+                  }
+              }
+              """,
+            """
+              package at.gepardec.wor.recipes.querydsl.testapp;
+                                                     
+              import at.gepardec.wor.recipes.querydsl.testapp.entities.QTestEntity;
+              import com.querydsl.jpa.impl.JPAQueryFactory;
+              
+              import javax.enterprise.context.RequestScoped;
+              import javax.inject.Inject;
+              import javax.persistence.EntityManager;
+              
+              @RequestScoped
+              public class TestDAO {
+                  @Inject
+                  private EntityManager em;
+              
+                  public String getName() {
+                      return new JPAQueryFactory(em)
+                                  .from(QTestEntity.testEntity)
+                                  .where(QTestEntity.testEntity.id.eq(1L))
+                                  .uniqueResult(QTestEntity.testEntity.name);
+                  }
+              }
+              """
+          )
+        );
+    }
+
+    @DocumentExample
+    @Test
+    void updatesCallChain() {
         rewriteRun(
           //language=java
           java(
