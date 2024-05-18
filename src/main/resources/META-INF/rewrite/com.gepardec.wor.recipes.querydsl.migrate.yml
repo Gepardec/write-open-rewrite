@@ -1,0 +1,18 @@
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: com.gepardec.wor.recipes.querydsl.Migrate
+displayName: Update QueryDSL
+description: "This recipe changes the imports of old QueryDSL classes (3.6.1) to new ones (5.0.0)"
+tags:
+  - java
+recipeList:
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: com.mysema.query.jpa.impl.JPAQuery
+      newFullyQualifiedTypeName: com.querydsl.jpa.impl.JPAQueryFactory
+      ignoreDefinition: true
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: com.mysema.query.Tuple
+      newFullyQualifiedTypeName: com.querydsl.core.Tuple
+      ignoreDefinition: true
+  - com.gepardec.wor.querydsl.RefactorTestDAORecipe
+  - org.openrewrite.java.format.AutoFormat
