@@ -2,12 +2,16 @@ package com.gepardec.wor.lord.queue;
 
 import com.gepardec.wor.lord.dto.visitors.transform.ObjectFactoryCreator;
 import com.gepardec.wor.lord.util.LSTUtil;
-import org.openrewrite.Cursor;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.java.AddImport;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.MethodMatcher;
+import org.openrewrite.java.RemoveImport;
+import org.openrewrite.java.RemoveUnusedImports;
+import org.openrewrite.java.search.FindMissingTypes;
 import org.openrewrite.java.tree.J;
 
+// TODO: Parameterize recipe for binary dto type and web dto type
 public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
 
     private static final MethodMatcher SET_DTO_MATCHER = new MethodMatcher("*..Laqaumv4Record setDto(..)");
@@ -16,7 +20,7 @@ public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
             #{} serviceRequest = objectFactory.create#{}();
             serviceRequest.setArg0(#{});
             XmlRequestWrapper<#{}> xmlRequestWrapper = new XmlRequestWrapper<>(#{}, serviceRequest);
-            data = marshallDto(xmlRequestWrapper);
+            data = MessageMarshaller.marshallDto(xmlRequestWrapper);
             """;
 
     @Override
@@ -30,13 +34,14 @@ public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
             method = dtoTemplate.apply(updateCursor(method), method.getCoordinates().replaceParameters(),
                     "Laqaumv4",
                                 dto.get().getVariables().get(0).getSimpleName());
+            doAfterVisit(new RemoveImport<>("com.gepardec.wor.lord.stubs.Laqaumv4Dto", true));
         }
 
         maybeAddImport("at.sozvers.stp.lgkk.a02.laaaumv4.Laqaumv4");
 
-        var declerations = LSTUtil.extractStatementsOfType(method.getBody().getStatements(), J.VariableDeclarations.class);
+        var declarations = LSTUtil.extractStatementsOfType(method.getBody().getStatements(), J.VariableDeclarations.class);
 
-        var formatter = declerations.stream().filter(d -> d.getType().toString().endsWith("TmMagnaxMessageFormatter")).findFirst();
+        var formatter = declarations.stream().filter(d -> d.getType().toString().endsWith("TmMagnaxMessageFormatter")).findFirst();
         if (formatter.isEmpty()) {
             return method;
         }
@@ -47,10 +52,15 @@ public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
                 "com.gepardec.wor.lord.stubs.XmlRequestWrapper"
         );
 
+        // TODO: Replace doAfterVisit with maybeAddImport/maybeRemoveImport
+        doAfterVisit(new RemoveImport<>("com.gepardec.wor.lord.stubs.TmMagnaxMessageFormatter", true));
+        doAfterVisit(new AddImport<>("com.gepardec.wor.lord.stubs.MessageMarshaller", null, false));
         maybeAddImport("at.sozvers.stp.lgkk.a02.laaaumv4.ExecuteService");
+        maybeAddImport("com.gepardec.wor.lord.stubs.XmlRequestWrapper");
 
         System.out.println("Method declaration: " + formatter);
         doAfterVisit(new ObjectFactoryCreator("objectFactory", "at.sozvers.stp.lgkk.a02.laaaumv4"));
+
         return template.apply(
                 updateCursor(method),
                 formatter.orElse(null).getCoordinates().replace(),
@@ -73,13 +83,17 @@ public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
         variableDeclarations = super.visitVariableDeclarations(variableDeclarations, context);
 
         if (variableDeclarations.getTypeExpression().toString().endsWith("Laqaumv4Record")) {
+            doAfterVisit(new RemoveImport<>("com.gepardec.wor.lord.stubs.Laqaumv4Record", true));
             return null;
         }
         return variableDeclarations;
     }
 
+    // TODO: Limit try-statements that get deleted
     @Override
     public J.Try visitTry(J.Try _try, ExecutionContext executionContext) {
+        doAfterVisit(new RemoveImport<>("com.gepardec.wor.lord.stubs.SystemErrorException", true));
+        doAfterVisit(new RemoveImport<>("com.gepardec.wor.lord.stubs.XplFormatException", true));
         super.visitTry(_try, executionContext);
         return null;
     }

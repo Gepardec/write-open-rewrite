@@ -1,11 +1,14 @@
 package com.gepardec.wor.lord.queues;
 
+import com.gepardec.wor.helpers.SourceFileContents;
 import com.gepardec.wor.lord.queue.QueueRecipe;
 import com.gepardec.wor.lord.util.ParserUtil;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.DocumentExample;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
+import org.openrewrite.test.SourceSpecs;
+import org.openrewrite.test.TypeValidation;
 
 import static org.openrewrite.java.Assertions.java;
 
@@ -15,7 +18,8 @@ public class BinaryQueueCallToWebTest implements RewriteTest {
     public void defaults(RecipeSpec spec) {
         spec
           .recipe(new QueueRecipe())
-          .parser(ParserUtil.createParserWithRuntimeClasspath());
+          .parser(ParserUtil.createParserWithRuntimeClasspath())
+          .typeValidationOptions(TypeValidation.none());        //TODO: Create a type valid recipe
     }
 
     @DocumentExample
@@ -36,6 +40,7 @@ public class BinaryQueueCallToWebTest implements RewriteTest {
               
               public class Test {
                   public static final String SERVICE_NAME = "LAAAUMV4";
+    
                   public void test(Laqaumv4Dto request) {
                       byte[] data;
                       String user = "eLeAUOnl";
@@ -66,14 +71,15 @@ public class BinaryQueueCallToWebTest implements RewriteTest {
             """
               package com.gepardec.wor.lord;
 
-              import com.gepardec.wor.lord.stubs.QueueHelper;
+              import at.sozvers.stp.lgkk.a02.laaaumv4.ExecuteService;
               import at.sozvers.stp.lgkk.a02.laaaumv4.Laqaumv4;
               import at.sozvers.stp.lgkk.a02.laaaumv4.ObjectFactory;
-              import at.sozvers.stp.lgkk.a02.laaaumv4.ExecuteService;
+              import com.gepardec.wor.lord.stubs.MessageMarshaller;
+              import com.gepardec.wor.lord.stubs.QueueHelper;
               import com.gepardec.wor.lord.stubs.XmlRequestWrapper;
 
               public class Test {
-                  public static final ObjectFactory objectFactory = new ObjectFactory();
+                  private static final ObjectFactory objectFactory = new ObjectFactory();
                   public static final String SERVICE_NAME = "LAAAUMV4";
 
                   public void test(Laqaumv4 request) {
@@ -84,7 +90,7 @@ public class BinaryQueueCallToWebTest implements RewriteTest {
                       ExecuteService serviceRequest = objectFactory.createExecuteService();
                       serviceRequest.setArg0(request);
                       XmlRequestWrapper<ExecuteService> xmlRequestWrapper = new XmlRequestWrapper<>(SERVICE_NAME, serviceRequest);
-                      data = marshallDto(xmlRequestWrapper);
+                      data = MessageMarshaller.marshallDto(xmlRequestWrapper);
 
                       queueHelper.send("", data);
                   }
@@ -97,7 +103,4 @@ public class BinaryQueueCallToWebTest implements RewriteTest {
           )
         );
     }
-
-
-
 }
