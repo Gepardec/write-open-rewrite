@@ -16,21 +16,22 @@ public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
             data = marshallDto(xmlRequestWrapper);
             """;
 
-    private static final String DTO_TEMPLATE = "#{}";
-
     @Override
     public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {
         method = super.visitMethodDeclaration(method, executionContext);
 
         var dto = LSTUtil.extractStatementsOfType(method.getParameters(), J.VariableDeclarations.class).stream().filter(p -> p.getType().toString().endsWith("Dto")).findFirst();
-        var dtoTemplate = LSTUtil.javaTemplateOf("#{} request", "at.sozvers.stp.lgkk.a02.laaaumv4.Laqaumv4");
+        var dtoTemplate = LSTUtil.javaTemplateOf("#{} #{}", "at.sozvers.stp.lgkk.a02.laaaumv4.Laqaumv4");
 
         if (dto.isPresent()) {
-            method = dtoTemplate.apply(updateCursor(method), dto.orElse(null).getCoordinates().replace(), "Laqaumv4 request");
+            method = dtoTemplate.apply(updateCursor(method), method.getCoordinates().replaceParameters(),
+                    "Laqaumv4",
+                                dto.get().getVariables().get(0).getSimpleName());
         }
 
-        var declerations = LSTUtil.extractStatementsOfType(method.getBody().getStatements(), J.VariableDeclarations.class);
+        maybeAddImport("at.sozvers.stp.lgkk.a02.laaaumv4.Laqaumv4");
 
+        var declerations = LSTUtil.extractStatementsOfType(method.getBody().getStatements(), J.VariableDeclarations.class);
 
         var formatter = declerations.stream().filter(d -> d.getType().toString().endsWith("TmMagnaxMessageFormatter")).findFirst();
         if (formatter.isEmpty()) {
@@ -43,8 +44,9 @@ public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
                 "com.gepardec.wor.lord.stubs.XmlRequestWrapper"
         );
 
-        System.out.println("Method declaration: " + formatter);
+        maybeAddImport("at.sozvers.stp.lgkk.a02.laaaumv4.ExecuteService");
 
+        System.out.println("Method declaration: " + formatter);
         return template.apply(
                 updateCursor(method),
                 formatter.orElse(null).getCoordinates().replace(),
@@ -52,7 +54,28 @@ public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
         );
     }
 
+    @Override
+    public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {
+        method = super.visitMethodInvocation(method, context);
+        if (method.getSelect() == null) {
+            return method;
+        }
+        String methodDeclaringType = method.getSelect().getType().toString();
+        if (!methodDeclaringType.endsWith("Laqaumv4Record")) {
+            return method;
+        }
 
+        return null;
+    }
+
+    @Override
+    public J.VariableDeclarations visitVariableDeclarations(J.VariableDeclarations variableDeclarations, ExecutionContext context) {
+        variableDeclarations = super.visitVariableDeclarations(variableDeclarations, context);
+        if (variableDeclarations.getTypeExpression().toString().endsWith("Laqaumv4Record")) {
+            return null;
+        }
+        return variableDeclarations;
+    }
 
     @Override
     public J.Try visitTry(J.Try _try, ExecutionContext executionContext) {
