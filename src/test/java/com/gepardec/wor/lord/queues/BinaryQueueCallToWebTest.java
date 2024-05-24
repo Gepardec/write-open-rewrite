@@ -1,6 +1,6 @@
 package com.gepardec.wor.lord.queues;
 
-import com.gepardec.wor.lord.stdh.v2.recipes.BinaryDtoToWsdl2JavaServiceDto;
+import com.gepardec.wor.lord.queue.QueueRecipe;
 import com.gepardec.wor.lord.util.ParserUtil;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.DocumentExample;
@@ -14,7 +14,7 @@ public class BinaryQueueCallToWebTest implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
         spec
-          .recipe(new BinaryDtoToWsdl2JavaServiceDto())
+          .recipe(new QueueRecipe())
           .parser(ParserUtil.createParserWithRuntimeClasspath());
     }
 
@@ -74,15 +74,16 @@ public class BinaryQueueCallToWebTest implements RewriteTest {
 
               public class Test {
                   public static final ObjectFactory objectFactory = new ObjectFactory();
+                  public static final String SERVICE_NAME = "LAAAUMV4";
 
                   public void test(Laqaumv4 request) {
                       byte[] data;
                       String user = "eLeAUOnl";
                       QueueHelper queueHelper = getQueueHelper();
 
-                      ExecuteService executeServiceRequest = objectFactory.createExecuteService();
-                      executeServiceRequest.setArg0(messageDto);
-                      XmlRequestWrapper<ExecuteService> xmlRequestWrapper = new XmlRequestWrapper<>("LAAAUMV4", executeServiceRequest);
+                      ExecuteService serviceRequest = objectFactory.createExecuteService();
+                      serviceRequest.setArg0(request);
+                      XmlRequestWrapper<ExecuteService> xmlRequestWrapper = new XmlRequestWrapper<>(SERVICE_NAME, serviceRequest);
                       data = marshallDto(xmlRequestWrapper);
 
                       queueHelper.send("", data);
