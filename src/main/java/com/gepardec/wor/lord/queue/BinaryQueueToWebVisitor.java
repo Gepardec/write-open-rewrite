@@ -1,14 +1,17 @@
 package com.gepardec.wor.lord.queue;
 
+import com.gepardec.wor.lord.dto.visitors.transform.ObjectFactoryCreator;
 import com.gepardec.wor.lord.util.LSTUtil;
 import org.openrewrite.Cursor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaIsoVisitor;
+import org.openrewrite.java.MethodMatcher;
 import org.openrewrite.java.tree.J;
 
 public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
 
-    //language=java
+    private static final MethodMatcher SET_DTO_MATCHER = new MethodMatcher("*..Laqaumv4Record setDto(..)");
+
     private static final String NEW_CODE_TEMPLATE = """
             #{} serviceRequest = objectFactory.create#{}();
             serviceRequest.setArg0(#{});
@@ -47,30 +50,28 @@ public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
         maybeAddImport("at.sozvers.stp.lgkk.a02.laaaumv4.ExecuteService");
 
         System.out.println("Method declaration: " + formatter);
+        doAfterVisit(new ObjectFactoryCreator("objectFactory", "at.sozvers.stp.lgkk.a02.laaaumv4"));
         return template.apply(
                 updateCursor(method),
                 formatter.orElse(null).getCoordinates().replace(),
                 "ExecuteService", "ExecuteService", "request", "ExecuteService", "SERVICE_NAME"
         );
+
     }
 
     @Override
     public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {
         method = super.visitMethodInvocation(method, context);
-        if (method.getSelect() == null) {
-            return method;
+        if (SET_DTO_MATCHER.matches(method)) {
+            return null;
         }
-        String methodDeclaringType = method.getSelect().getType().toString();
-        if (!methodDeclaringType.endsWith("Laqaumv4Record")) {
-            return method;
-        }
-
-        return null;
+        return method;
     }
 
     @Override
     public J.VariableDeclarations visitVariableDeclarations(J.VariableDeclarations variableDeclarations, ExecutionContext context) {
         variableDeclarations = super.visitVariableDeclarations(variableDeclarations, context);
+
         if (variableDeclarations.getTypeExpression().toString().endsWith("Laqaumv4Record")) {
             return null;
         }
