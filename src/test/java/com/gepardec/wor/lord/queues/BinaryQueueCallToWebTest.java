@@ -55,12 +55,12 @@ public class BinaryQueueCallToWebTest implements RewriteTest {
                               + SERVICE_NAME, e);
                       }
               
-                       queueHelper.send("", data);
+                      queueHelper.send("", data);
                   }
     
-                    public QueueHelper getQueueHelper() {
-                        return new QueueHelper();
-                    }
+                  public QueueHelper getQueueHelper() {
+                      return new QueueHelper();
+                  }
               }
               """,
             """
