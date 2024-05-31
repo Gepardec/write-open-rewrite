@@ -2,10 +2,11 @@ package com.gepardec.wor.lord.queue;
 
 import com.gepardec.wor.lord.dto.visitors.transform.ObjectFactoryCreator;
 import com.gepardec.wor.lord.util.LSTUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.MethodMatcher;
-import org.openrewrite.java.RemoveImport;
 import org.openrewrite.java.tree.J;
 
 public class BinaryToWebQueueCallVisitor extends JavaIsoVisitor<ExecutionContext> {
@@ -30,22 +31,32 @@ public class BinaryToWebQueueCallVisitor extends JavaIsoVisitor<ExecutionContext
     @Override
     public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {
         method = super.visitMethodDeclaration(method, executionContext);
+        method = renameBinaryDtoToWebDto(method);
+        return replaceBinaryTransformerWithWebTransformer(method);
+    }
 
+    private J.@NotNull MethodDeclaration renameBinaryDtoToWebDto(J.MethodDeclaration method) {
         var dto = LSTUtil.extractStatementsOfType(method.getParameters(), J.VariableDeclarations.class).stream().filter(p -> p.getType().toString().endsWith("Dto")).findFirst();
         var dtoTemplate = LSTUtil.javaTemplateOf("#{} #{}", webDtoFullyQualifiedType);
 
         if (dto.isPresent()) {
-            method = dtoTemplate.apply(updateCursor(method), method.getCoordinates().replaceParameters(),
+            method = dtoTemplate.apply(
+                    updateCursor(method), method.getCoordinates().replaceParameters(),
                     "Laqaumv4",
-                    dto.get().getVariables().get(0).getSimpleName());
+                    dto.get().getVariables().get(0).getSimpleName()
+            );
             maybeRemoveImport(binaryDtoFullyQualifiedType);
         }
 
         maybeAddImport(webDtoFullyQualifiedType);
 
-        var declarations = LSTUtil.extractStatementsOfType(method.getBody().getStatements(), J.VariableDeclarations.class);
+        return method;
+    }
 
+    private J.@NotNull MethodDeclaration replaceBinaryTransformerWithWebTransformer(J.MethodDeclaration method) {
+        var declarations = LSTUtil.extractStatementsOfType(method.getBody().getStatements(), J.VariableDeclarations.class);
         var formatter = declarations.stream().filter(d -> d.getType().toString().endsWith("TmMagnaxMessageFormatter")).findFirst();
+
         if (formatter.isEmpty()) {
             return method;
         }
@@ -61,7 +72,6 @@ public class BinaryToWebQueueCallVisitor extends JavaIsoVisitor<ExecutionContext
         maybeAddImport("com.gepardec.wor.lord.stubs.MessageMarshaller");
         maybeAddImport("at.sozvers.stp.lgkk.a02.laaaumv4.ExecuteService");
         maybeAddImport("com.gepardec.wor.lord.stubs.XmlRequestWrapper");
-
         doAfterVisit(new ObjectFactoryCreator("objectFactory", "at.sozvers.stp.lgkk.a02.laaaumv4"));
 
         return template.apply(
@@ -69,33 +79,46 @@ public class BinaryToWebQueueCallVisitor extends JavaIsoVisitor<ExecutionContext
                 formatter.orElse(null).getCoordinates().replace(),
                 "ExecuteService", "ExecuteService", "request", "ExecuteService", "SERVICE_NAME"
         );
-
     }
 
     @Override
     public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {
         method = super.visitMethodInvocation(method, context);
+        return removeSetDtoInvocation(method, context);
+    }
+
+    private J.@Nullable MethodInvocation removeSetDtoInvocation(J.MethodInvocation method, ExecutionContext context) {
         if (SET_DTO_MATCHER.matches(method)) {
             return null;
         }
+
         return method;
     }
 
     @Override
     public J.VariableDeclarations visitVariableDeclarations(J.VariableDeclarations variableDeclarations, ExecutionContext context) {
         variableDeclarations = super.visitVariableDeclarations(variableDeclarations, context);
+        return removeRecordVariableDeclaration(variableDeclarations, context);
+    }
 
+    private J.@Nullable VariableDeclarations removeRecordVariableDeclaration(J.VariableDeclarations variableDeclarations, ExecutionContext context) {
         if (variableDeclarations.getTypeExpression().toString().endsWith("Laqaumv4Record")) {
             maybeRemoveImport("com.gepardec.wor.lord.stubs.Laqaumv4Record");
             return null;
         }
+
         return variableDeclarations;
     }
 
     @Override
     public J.Try visitTry(J.Try _try, ExecutionContext executionContext) {
         _try = super.visitTry(_try, executionContext);
+        return removeTransformerTryCatchBlock(_try, executionContext);
+    }
+
+    private J.@Nullable Try removeTransformerTryCatchBlock(J.Try _try, ExecutionContext executionContext) {
         boolean hasXplFormatException = _try.getCatches().stream().anyMatch(c -> c.getParameter().getType().toString().endsWith("XplFormatException"));
+
         if (!hasXplFormatException) {
             return _try;
         }
@@ -103,6 +126,7 @@ public class BinaryToWebQueueCallVisitor extends JavaIsoVisitor<ExecutionContext
         // Remove imports and the whole try-catch-statement
         maybeRemoveImport("com.gepardec.wor.lord.stubs.SystemErrorException");
         maybeRemoveImport("com.gepardec.wor.lord.stubs.XplFormatException");
+
         return null;
     }
 }
