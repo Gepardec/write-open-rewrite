@@ -1,13 +1,11 @@
 package com.gepardec.wor.lord.queues;
 
-import com.gepardec.wor.helpers.SourceFileContents;
-import com.gepardec.wor.lord.queue.QueueRecipe;
+import com.gepardec.wor.lord.queue.BinaryToWebQueueCall;
 import com.gepardec.wor.lord.util.ParserUtil;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.DocumentExample;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
-import org.openrewrite.test.SourceSpecs;
 import org.openrewrite.test.TypeValidation;
 
 import static org.openrewrite.java.Assertions.java;
@@ -17,7 +15,7 @@ public class BinaryQueueCallToWebTest implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
         spec
-          .recipe(new QueueRecipe())
+          .recipe(new BinaryToWebQueueCall("com.gepardec.wor.lord.stubs.Laqaumv4Dto", "at.sozvers.stp.lgkk.a02.laaaumv4.Laqaumv4"))
           .parser(ParserUtil.createParserWithRuntimeClasspath())
           .typeValidationOptions(TypeValidation.none());        //TODO: Create a type valid recipe
     }

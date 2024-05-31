@@ -23,21 +23,29 @@ public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
             data = MessageMarshaller.marshallDto(xmlRequestWrapper);
             """;
 
+    private final String binaryDtoFullyQualifiedType;
+    private final String webDtoFullyQualifiedType;
+
+    public BinaryQueueToWebVisitor(String binaryDtoFullyQualifiedType, String webDtoFullyQualifiedType) {
+        this.binaryDtoFullyQualifiedType = binaryDtoFullyQualifiedType;
+        this.webDtoFullyQualifiedType = webDtoFullyQualifiedType;
+    }
+
     @Override
     public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {
         method = super.visitMethodDeclaration(method, executionContext);
 
         var dto = LSTUtil.extractStatementsOfType(method.getParameters(), J.VariableDeclarations.class).stream().filter(p -> p.getType().toString().endsWith("Dto")).findFirst();
-        var dtoTemplate = LSTUtil.javaTemplateOf("#{} #{}", "at.sozvers.stp.lgkk.a02.laaaumv4.Laqaumv4");
+        var dtoTemplate = LSTUtil.javaTemplateOf("#{} #{}", webDtoFullyQualifiedType);
 
         if (dto.isPresent()) {
             method = dtoTemplate.apply(updateCursor(method), method.getCoordinates().replaceParameters(),
                     "Laqaumv4",
-                                dto.get().getVariables().get(0).getSimpleName());
-            doAfterVisit(new RemoveImport<>("com.gepardec.wor.lord.stubs.Laqaumv4Dto", true));
+                    dto.get().getVariables().get(0).getSimpleName());
+            doAfterVisit(new RemoveImport<>(binaryDtoFullyQualifiedType, true));
         }
 
-        maybeAddImport("at.sozvers.stp.lgkk.a02.laaaumv4.Laqaumv4");
+        maybeAddImport(webDtoFullyQualifiedType);
 
         var declarations = LSTUtil.extractStatementsOfType(method.getBody().getStatements(), J.VariableDeclarations.class);
 
