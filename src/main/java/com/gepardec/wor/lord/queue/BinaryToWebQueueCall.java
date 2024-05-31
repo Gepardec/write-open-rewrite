@@ -33,6 +33,6 @@ public class BinaryToWebQueueCall extends Recipe {
 
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
-        return new BinaryQueueToWebVisitor(binaryDtoFullyQualifiedType, webDtoFullyQualifiedType);
+        return new BinaryToWebQueueCallVisitor(binaryDtoFullyQualifiedType, webDtoFullyQualifiedType);
     }
 }
