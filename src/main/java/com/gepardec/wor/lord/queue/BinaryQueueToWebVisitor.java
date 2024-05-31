@@ -89,12 +89,17 @@ public class BinaryQueueToWebVisitor extends JavaIsoVisitor<ExecutionContext> {
         return variableDeclarations;
     }
 
-    // TODO: Limit try-statements that get deleted
     @Override
     public J.Try visitTry(J.Try _try, ExecutionContext executionContext) {
+        _try = super.visitTry(_try, executionContext);
+        boolean hasXplFormatException = _try.getCatches().stream().anyMatch(c -> c.getParameter().getType().toString().endsWith("XplFormatException"));
+        if (!hasXplFormatException) {
+            return _try;
+        }
+
+        // Remove imports and the whole try-catch-statement
         doAfterVisit(new RemoveImport<>("com.gepardec.wor.lord.stubs.SystemErrorException", true));
         doAfterVisit(new RemoveImport<>("com.gepardec.wor.lord.stubs.XplFormatException", true));
-        super.visitTry(_try, executionContext);
         return null;
     }
 }
