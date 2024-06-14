@@ -3,13 +3,13 @@ package at.gepardec.wor.recipes.querydsl.testapp;
 import java.util.Date;
 import java.util.List;
 
-/*import at.gepardec.wor.recipes.querydsl.testapp.entities.AuszahlungDetail;
+import at.gepardec.wor.recipes.querydsl.testapp.entities.AuszahlungDetail;
 import at.gepardec.wor.recipes.querydsl.testapp.entities.AuszahlungKopf;
 import at.gepardec.wor.recipes.querydsl.testapp.entities.QAuszahlungDetail;
 import at.gepardec.wor.recipes.querydsl.testapp.entities.QAuszahlungKopf;
 import com.mysema.query.types.expr.BooleanExpression;
 
-public class AuszahlungDAO extends at.sozvers.stp.rgkk.domain.dao.BaseDAO {
+public class AuszahlungDAO extends BaseDAO {
 
     private static final QAuszahlungKopf AUSZAHLUNG_KOPF = QAuszahlungKopf.auszahlungKopf;
     private static final QAuszahlungDetail AUSZAHLUNG_DETAIL = QAuszahlungDetail.auszahlungDetail;
@@ -40,7 +40,7 @@ public class AuszahlungDAO extends at.sozvers.stp.rgkk.domain.dao.BaseDAO {
                                      .list(AUSZAHLUNG_DETAIL);
     }
 
-    public int getCountAuszahlungsKopfCreatedToday(final Integer traegerId, boolean checkPostanWeisungOnly) {
+    public long getCountAuszahlungsKopfCreatedToday(final Integer traegerId, boolean checkPostanWeisungOnly) {
         BooleanExpression where = AUSZAHLUNG_KOPF.erstelltAm.lt(new Date());
 
         if(checkPostanWeisungOnly) {
@@ -52,9 +52,9 @@ public class AuszahlungDAO extends at.sozvers.stp.rgkk.domain.dao.BaseDAO {
         return createQuery(traegerId).from(AUSZAHLUNG_KOPF).where(where).count();
     }
 }
-*/
 
-import at.gepardec.wor.recipes.querydsl.testapp.entities.AuszahlungDetail;
+
+/*import at.gepardec.wor.recipes.querydsl.testapp.entities.AuszahlungDetail;
 import at.gepardec.wor.recipes.querydsl.testapp.entities.AuszahlungKopf;
 import at.gepardec.wor.recipes.querydsl.testapp.entities.QAuszahlungDetail;
 import at.gepardec.wor.recipes.querydsl.testapp.entities.QAuszahlungKopf;
@@ -108,4 +108,4 @@ public class AuszahlungDAO extends at.sozvers.stp.rgkk.domain.dao.BaseDAO {
 
         return createQuery(traegerId).selectFrom(AUSZAHLUNG_KOPF).where(where).fetch().size();
     }
-}
+}*/

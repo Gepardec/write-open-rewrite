@@ -23,14 +23,18 @@ class QueryDslMigrationTest implements RewriteTest {
           //language=java
           java(
             """
-              package at.gepardec.wor.recipes.querydsl.testapp.entities;
+              package at.gepardec.wor.recipes.querydsl.testapp;
+              
+              import java.util.Date;
+              import java.util.List;
+              
               import at.gepardec.wor.recipes.querydsl.testapp.entities.AuszahlungDetail;
               import at.gepardec.wor.recipes.querydsl.testapp.entities.AuszahlungKopf;
               import at.gepardec.wor.recipes.querydsl.testapp.entities.QAuszahlungDetail;
               import at.gepardec.wor.recipes.querydsl.testapp.entities.QAuszahlungKopf;
               import com.mysema.query.types.expr.BooleanExpression;
               
-              public class AuszahlungDAO extends at.sozvers.stp.rgkk.domain.dao.BaseDAO {
+              public class AuszahlungDAO extends BaseDAO {
               
                   private static final QAuszahlungKopf AUSZAHLUNG_KOPF = QAuszahlungKopf.auszahlungKopf;
                   private static final QAuszahlungDetail AUSZAHLUNG_DETAIL = QAuszahlungDetail.auszahlungDetail;
@@ -42,40 +46,43 @@ class QueryDslMigrationTest implements RewriteTest {
                                                          .uniqueResult(AUSZAHLUNG_KOPF.id.max());
                       return maxId == null ? Long.valueOf(0L) : maxId;
                   }
-                  
+              
                   public Long getMaxAuszahlungDetailId(Integer traegerId) {
                       return createQuery(traegerId).from(AUSZAHLUNG_DETAIL)
                                                    .singleResult(AUSZAHLUNG_DETAIL.id.max());
                   }
-    
+              
                   public List<AuszahlungKopf> findAuszahlungenKoepfe(Integer traegerId, Long minId, Long maxId) {
                       return createQuery(traegerId).from(AUSZAHLUNG_KOPF)
                                                    .where(AUSZAHLUNG_KOPF.id.gt(minId)
                                                                             .and(AUSZAHLUNG_KOPF.id.loe(maxId)))
                                                    .list(AUSZAHLUNG_KOPF);
                   }
-                
+              
                   public List<AuszahlungDetail> findAuszahlungenDetails(Integer traegerId, Long auszahlungKopfId) {
                       return createQuery(traegerId).from(AUSZAHLUNG_DETAIL)
                                                    .where(AUSZAHLUNG_DETAIL.auszahlungKopf.id.eq(auszahlungKopfId))
                                                    .list(AUSZAHLUNG_DETAIL);
-                  }    
-    
-                  public int getCountAuszahlungsKopfCreatedToday(final Integer traegerId, boolean checkPostanWeisungOnly) {
+                  }
+              
+                  public long getCountAuszahlungsKopfCreatedToday(final Integer traegerId, boolean checkPostanWeisungOnly) {
                       BooleanExpression where = AUSZAHLUNG_KOPF.erstelltAm.lt(new Date());
-                
+              
                       if(checkPostanWeisungOnly) {
                           where = where.and(AUSZAHLUNG_KOPF.pmtTpInfCtgyPurpPrtry.eq(POSTANWEISUNG));
                       } else {
                           where = where.and(AUSZAHLUNG_KOPF.pmtTpInfCtgyPurpPrtry.isNull());
                       }
-                
+              
                       return createQuery(traegerId).from(AUSZAHLUNG_KOPF).where(where).count();
                   }
               }
               """,
             """
-              package at.gepardec.wor.recipes.querydsl.testapp.entities;
+              package at.gepardec.wor.recipes.querydsl.testapp;
+              
+              import java.util.Date;
+              import java.util.List;
 
               import at.gepardec.wor.recipes.querydsl.testapp.entities.AuszahlungDetail;
               import at.gepardec.wor.recipes.querydsl.testapp.entities.AuszahlungKopf;
@@ -83,7 +90,7 @@ class QueryDslMigrationTest implements RewriteTest {
               import at.gepardec.wor.recipes.querydsl.testapp.entities.QAuszahlungKopf;
               import com.querydsl.core.types.dsl.BooleanExpression;
               
-              public class AuszahlungDAO extends at.sozvers.stp.rgkk.domain.dao.BaseDAO {
+              public class AuszahlungDAO extends BaseDAO {
               
                   private static final QAuszahlungKopf AUSZAHLUNG_KOPF = QAuszahlungKopf.auszahlungKopf;
                   private static final QAuszahlungDetail AUSZAHLUNG_DETAIL = QAuszahlungDetail.auszahlungDetail;
@@ -122,7 +129,7 @@ class QueryDslMigrationTest implements RewriteTest {
                               .fetch();
                   }
     
-                  public int getCountAuszahlungsKopfCreatedToday(final Integer traegerId, boolean checkPostanWeisungOnly) {
+                  public long getCountAuszahlungsKopfCreatedToday(final Integer traegerId, boolean checkPostanWeisungOnly) {
                       BooleanExpression where = AUSZAHLUNG_KOPF.erstelltAm.lt(new Date());
               
                       if (checkPostanWeisungOnly) {

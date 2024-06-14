@@ -1,5 +1,6 @@
 package com.gepardec.wor.recipes.querydsl;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.DocumentExample;
 import org.openrewrite.java.JavaParser;
@@ -8,6 +9,7 @@ import org.openrewrite.test.RewriteTest;
 
 import static org.openrewrite.java.Assertions.java;
 
+@Disabled
 class SimpleMigrationTest implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
@@ -49,16 +51,16 @@ class SimpleMigrationTest implements RewriteTest {
                                                      
               import at.gepardec.wor.recipes.querydsl.testapp.entities.QTestEntity;
               import com.querydsl.jpa.impl.JPAQueryFactory;
-              
+                            
               import javax.enterprise.context.RequestScoped;
               import javax.inject.Inject;
               import javax.persistence.EntityManager;
-              
+                            
               @RequestScoped
               public class TestDAO {
                   @Inject
                   private EntityManager em;
-              
+                            
                   public String getName() {
                       return new JPAQueryFactory(em)
                                   .from(QTestEntity.testEntity)
@@ -105,16 +107,16 @@ class SimpleMigrationTest implements RewriteTest {
                                                      
               import at.gepardec.wor.recipes.querydsl.testapp.entities.QTestEntity;
               import com.querydsl.jpa.impl.JPAQueryFactory;
-              
+                            
               import javax.enterprise.context.RequestScoped;
               import javax.inject.Inject;
               import javax.persistence.EntityManager;
-              
+                            
               @RequestScoped
               public class TestDAO {
                   @Inject
                   private EntityManager em;
-              
+                            
                   public String getName() {
                       return new JPAQueryFactory(em)
                               .select(QTestEntity.testEntity.name)

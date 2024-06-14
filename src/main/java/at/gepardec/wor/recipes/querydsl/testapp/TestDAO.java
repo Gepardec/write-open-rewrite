@@ -1,6 +1,6 @@
 package at.gepardec.wor.recipes.querydsl.testapp;
 
-/*import at.gepardec.wor.recipes.querydsl.testapp.entities.QTestEntity;
+import at.gepardec.wor.recipes.querydsl.testapp.entities.QTestEntity;
 import com.mysema.query.Tuple;
 import com.mysema.query.jpa.impl.JPAQuery;
 
@@ -26,9 +26,10 @@ public class TestDAO {
                 .where(QTestEntity.testEntity.id.eq(1L))
                 .uniqueResult(QTestEntity.testEntity.id, QTestEntity.testEntity.name);
     }
-}*/
+}
 
-import at.gepardec.wor.recipes.querydsl.testapp.entities.QTestEntity;
+
+/*import at.gepardec.wor.recipes.querydsl.testapp.entities.QTestEntity;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -56,4 +57,4 @@ public class TestDAO {
                 .where(QTestEntity.testEntity.id.eq(1L))
                 .fetchOne();
     }
-}
+}*/

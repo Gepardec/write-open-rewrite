@@ -11,27 +11,26 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <querydsl.version>5.1.0</querydsl.version>
+        <querydsl.version>3.6.1</querydsl.version>
         <javax.javaee-api.version>8.0</javax.javaee-api.version>
     </properties>
 
     <dependencies>
 
         <dependency>
-            <groupId>com.querydsl</groupId>
+            <groupId>com.mysema.querydsl</groupId>
             <artifactId>querydsl-apt</artifactId>
             <version>${querydsl.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.querydsl</groupId>
+            <groupId>com.mysema.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
             <version>${querydsl.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.querydsl</groupId>
+            <groupId>com.mysema.querydsl</groupId>
             <artifactId>querydsl-sql</artifactId>
             <version>${querydsl.version}</version>
         </dependency>
@@ -225,7 +224,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>target/generated-sources/java</outputDirectory>
-                            <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+                            <processor>com.mysema.query.apt.jpa.JPAAnnotationProcessor</processor>
                         </configuration>
                     </execution>
                 </executions>

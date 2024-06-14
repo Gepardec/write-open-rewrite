@@ -18,8 +18,9 @@ public class RefactorTestDAOVisitor extends JavaIsoVisitor<ExecutionContext> {
     private static final Map<String, String> FORCE_IMPORT_REPLACEMENTS = Map.of(
             "com.mysema.query.types.expr.BooleanExpression", "com.querydsl.core.types.dsl.BooleanExpression"
     );
-    private final static String SELECT_THEN_FROM_TEMPLATE = "createQuery(#{any()})\n.select(%s)\n.from(#{any()})";
-    private final static String SELECT_WITH_FROM_TEMPLATE = "createQuery(#{any()})\n.selectFrom(#{any()})";
+    private static final String SELECT_THEN_FROM_TEMPLATE = "createQuery(#{any()})\n.select(%s)\n.from(#{any()})";
+    private static final String SELECT_WITH_FROM_TEMPLATE = "createQuery(#{any()})\n.selectFrom(#{any()})";
+    public static final String BASE_DAO_CREATE_QUERY_RETURN_TYPE = "com.querydsl.jpa.impl.JPAQueryFactory";
 
     @Override
     public J.Import visitImport(J.Import _import, ExecutionContext executionContext) {
@@ -46,7 +47,7 @@ public class RefactorTestDAOVisitor extends JavaIsoVisitor<ExecutionContext> {
 
     private J.@NotNull MethodInvocation replaceCallOfFromMethodWithTemplate(J.MethodInvocation method) {
         if (method.getSimpleName().equals("from") &&
-                TypeUtils.isOfClassType(method.getSelect().getType(), "com.querydsl.jpa.impl.JPAQueryFactory") && argsOfUniqueResultCalls.containsKey(method.getId().toString())) {
+                TypeUtils.isOfClassType(method.getSelect().getType(), BASE_DAO_CREATE_QUERY_RETURN_TYPE) && argsOfUniqueResultCalls.containsKey(method.getId().toString())) {
 
             //add so many #{any()} as there are arguments in the uniqueResult call
             List<Expression> args = argsOfUniqueResultCalls.get(method.getId().toString());
@@ -81,7 +82,7 @@ public class RefactorTestDAOVisitor extends JavaIsoVisitor<ExecutionContext> {
         }
 
         if (method.getSimpleName().equals("from") &&
-                TypeUtils.isOfClassType(method.getSelect().getType(), "com.querydsl.jpa.impl.JPAQueryFactory") && idsOfCountCalls.contains(method.getId().toString())) {
+                TypeUtils.isOfClassType(method.getSelect().getType(), BASE_DAO_CREATE_QUERY_RETURN_TYPE) && idsOfCountCalls.contains(method.getId().toString())) {
 
             JavaTemplate javaTemplate = JavaTemplate.builder(SELECT_WITH_FROM_TEMPLATE)
                     .contextSensitive()
