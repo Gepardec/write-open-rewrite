@@ -1,0 +1,38 @@
+#
+# Copyright 2023 the original author or authors.
+# <p>
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# <p>
+# https://www.apache.org/licenses/LICENSE-2.0
+# <p>
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: com.gepardec.java.migrate.jakarta.Xmi
+displayName: Migrate javax names to jakarta in XMI files
+description: These recipes help with the Migration to Jakarta EE 10.
+tags:
+  - jakarta
+preconditions:
+  - org.openrewrite.FindSourceFiles:
+      filePattern: '**/*.xmi'
+recipeList:
+  - org.openrewrite.xml.ChangeTagAttribute:
+      elementName: Default:JAVA.package
+      attributeName: JAVA.package
+      oldValue: 'javax\.(.*)'
+      newValue: 'jakarta.$1'
+      regex: true
+  - org.openrewrite.xml.ChangeTagAttribute:
+      elementName: ownedAttribute
+      attributeName: name
+      oldValue: 'javax.transaction.global.timeout'
+      newValue: 'jakarta.transaction.global.timeout'
+      regex: false

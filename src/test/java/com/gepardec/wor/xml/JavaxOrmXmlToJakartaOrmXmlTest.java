@@ -15,10 +15,8 @@
  */
 package com.gepardec.wor.xml;
 
-import com.gepardec.wor.lord.util.Parsers;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.DocumentExample;
-import org.openrewrite.config.Environment;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 
@@ -39,7 +37,7 @@ class JavaxOrmXmlToJakartaOrmXmlTest implements RewriteTest {
           xml(
                   """
                   <?xml version="1.0" encoding="UTF-8" ?>
-                  <entity-mappings 
+                  <entity-mappings
                       xmlns="http://java.sun.com/xml/ns/persistence/orm" 
                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                       xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
@@ -49,7 +47,7 @@ class JavaxOrmXmlToJakartaOrmXmlTest implements RewriteTest {
                   """,
                   """
                   <?xml version="1.0" encoding="UTF-8" ?>
-                  <entity-mappings 
+                  <entity-mappings
                       xmlns="https://jakarta.ee/xml/ns/persistence/orm" 
                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                       xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence/orm https://jakarta.ee/xml/ns/persistence/orm/orm_3_0.xsd"
