@@ -8,8 +8,10 @@ import org.openrewrite.maven.tree.GroupArtifact;
 import org.openrewrite.maven.tree.GroupArtifactVersion;
 import org.openrewrite.maven.tree.ResolvedPom;
 import org.openrewrite.xml.XPathMatcher;
+import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -29,7 +31,7 @@ public class AddDependenciesByTypesVisitor extends MavenIsoVisitor<ExecutionCont
     }
 
     @Override
-    public Xml.Document visitDocument(Xml.Document document, ExecutionContext executionContext) {
+    public Xml.@NotNull Document visitDocument(Xml.@NotNull Document document, @NotNull ExecutionContext executionContext) {
         if (getDependenciesUsedByProject().isEmpty()) {
             return document;
         }
@@ -44,7 +46,7 @@ public class AddDependenciesByTypesVisitor extends MavenIsoVisitor<ExecutionCont
     }
 
     @Override
-    public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
+    public Xml.@NotNull Tag visitTag(Xml.@NotNull Tag tag, @NotNull ExecutionContext executionContext) {
         Xml.Tag dependencies = super.visitTag(tag, executionContext);
 
         if (!DEPENDENCIES_MATCHER.matches(getCursor())) {
@@ -72,7 +74,10 @@ public class AddDependenciesByTypesVisitor extends MavenIsoVisitor<ExecutionCont
     }
 
     private static Xml.@NotNull Tag addDependency(Xml.Tag dependencies, Xml.Tag dependencyTag) {
-        return dependencies.withContent(ListUtils.concat(dependencies.getChildren(), dependencyTag));
+
+        List<Content> contents = dependencies.getContent() == null ? new ArrayList<>() : new ArrayList<>(dependencies.getContent());
+        contents.add(dependencyTag);
+        return dependencies.withContent(contents);
     }
 
     private static GroupArtifactVersion buildGavObject(String gav) {

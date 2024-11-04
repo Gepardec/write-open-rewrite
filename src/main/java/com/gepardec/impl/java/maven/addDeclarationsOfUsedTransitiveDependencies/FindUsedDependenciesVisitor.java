@@ -20,7 +20,7 @@ public class FindUsedDependenciesVisitor extends JavaIsoVisitor<ExecutionContext
     }
 
     @Override
-    public J.CompilationUnit visitCompilationUnit(J.CompilationUnit cu, ExecutionContext executionContext) {
+    public J.@NotNull CompilationUnit visitCompilationUnit(J.@NotNull CompilationUnit cu, @NotNull ExecutionContext executionContext) {
         DependenciesUsedByProject newProject = extractUsedDependencies(cu);
 
         retrieveMatchingProject(acc, newProject)
@@ -31,8 +31,8 @@ public class FindUsedDependenciesVisitor extends JavaIsoVisitor<ExecutionContext
         return super.visitCompilationUnit(cu, executionContext);
     }
 
-    private static boolean mergeProject(DependenciesUsedByProject project, DependenciesUsedByProject usedDependencies) {
-        return project.getUsedDependenciesGav().addAll(usedDependencies.getUsedDependenciesGav());
+    private static void mergeProject(DependenciesUsedByProject project, DependenciesUsedByProject usedDependencies) {
+        project.getUsedDependenciesGav().addAll(usedDependencies.getUsedDependenciesGav());
     }
 
     private static Optional<DependenciesUsedByProject> retrieveMatchingProject(Set<DependenciesUsedByProject> projects, DependenciesUsedByProject project) {
@@ -45,7 +45,9 @@ public class FindUsedDependenciesVisitor extends JavaIsoVisitor<ExecutionContext
     }
 
     private static @NotNull DependenciesUsedByProject buildUsedDependenciesByProject(J.CompilationUnit cu, Set<String> usedDependencies) {
-        JavaProject.Publication publication = cu.getMarkers().findFirst(JavaProject.class).get().getPublication();
+        JavaProject.Publication publication = cu.getMarkers().findFirst(JavaProject.class)
+                .orElseThrow()
+                .getPublication();
 
         return new DependenciesUsedByProject(
                 publication.getArtifactId(),
@@ -77,7 +79,9 @@ public class FindUsedDependenciesVisitor extends JavaIsoVisitor<ExecutionContext
     }
 
     private static @NotNull Map<String, List<JavaType.FullyQualified>> extractGavToTypes(J.CompilationUnit cu) {
-        return cu.getMarkers().findFirst(JavaSourceSet.class).get().getGavToTypes();
+        return cu.getMarkers().findFirst(JavaSourceSet.class)
+                .orElseThrow()
+                .getGavToTypes();
     }
 
     private static @NotNull Set<JavaType> extractStaticImportedTypes(J.CompilationUnit cu) {
